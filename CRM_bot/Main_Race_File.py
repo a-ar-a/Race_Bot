@@ -55,27 +55,32 @@ def codes(message_pin_codes):
         bot.send_message(message_pin_codes.chat.id, f"Введён неверный PIN-код")
 
     for i in pin_codes:
-      if i == text:
-        if pin_codes.index(i) > 0:
-            print(pin_codes.index(i))
-            pin_check = DB_Requests.PIN_check(message_pin_codes, i)
-            if pin_check == 'stop cycle':
-                break
+        if i == text:
+            if pin_codes.index(i) > 0:
+                print(pin_codes.index(i))
+                pin_check = DB_Requests.PIN_check(message_pin_codes, i)
 
-      point_check = DB_Requests.Point_check(message_pin_codes, i)
+                if pin_check == 0:
+                    break
 
-      if point_check == None:
+            point_check = DB_Requests.Point_check(message_pin_codes, i)
+            print('Point_check before cycle:', point_check)
 
-        markup.add(types.InlineKeyboardButton('Отметка на карте', url=url_list[pin_codes.index(i)]))
-        bot.send_message(message_pin_codes.chat.id,
-                         f"Вы собрали {pin_codes.index(i) + 1}/{len(pin_codes)} контрольных пунктов.\nСледующий пункт:\n{points[i]}\nВведи следующий PIN-код для получения дальнейших указаний.",
-                         reply_markup=markup)
+            if point_check[0][0] == None:
+                print(f'Point_check after_cycle = {point_check}')
+                markup.add(types.InlineKeyboardButton('Отметка на карте', url=url_list[pin_codes.index(i)]))
+                bot.send_message(message_pin_codes.chat.id,
+                               f"Вы собрали {pin_codes.index(i) + 1}/{len(pin_codes)} контрольных пунктов.\n"
+                               f"Следующий пункт:\n"
+                               f"{points[i]}\n"
+                               f"Введи следующий PIN-код для получения дальнейших указаний.",
+                               reply_markup=markup)
 
-        DB_Requests.Point_update(message_pin_codes, i)
+                DB_Requests.Point_update(message_pin_codes, i)
 
-      else:
-          bot.send_message(message_pin_codes.chat.id,
-                         "Вы уже ввели данный PIN-код. Проследуйте к следующему пункту.")
+            else:
+                bot.send_message(message_pin_codes.chat.id,
+                             "Вы уже ввели данный PIN-код. Проследуйте к следующему пункту.")
 
 @bot.message_handler(commands=['admin_console'])
 def admin(message0):
@@ -93,12 +98,18 @@ def callback_messages(callback):
     if callback.data == 'became_admin':
         count_admin_check = DB_Requests.admin_id_call()
         print(count_admin_check)
-        if count_admin_check < 4:
+        name_admin_check = DB_Requests.admin_check(callback)
+        if name_admin_check == [] and count_admin_check < 4:
             admin_script(callback)
 
-        else:
+        if count_admin_check >= 4:
             bot.send_message(callback.from_user.id,
                              "Достигнуто максимальное количество администраторов.")
+
+        if name_admin_check != []:
+            bot.send_message(callback.from_user.id,
+            'Вы уже являетесь администратором.')
+
 
     if callback.data == 'Password_right':
         registration_admin = []

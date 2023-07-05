@@ -1,5 +1,4 @@
-a = list(str(i) for i in range(10))
-map(lambda i: int(i), a)
-print(list(map(lambda i: int(i), a)))
+a = [1, 2, 3, 4]
+print(a.index(1))
 
 

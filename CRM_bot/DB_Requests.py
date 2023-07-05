@@ -22,18 +22,17 @@ def PIN_check(message2, i):
     q = mycursor.fetchall()
     print(f'{i}:{q}')
     mydb.commit()
-
     if q[0][0] == None:
         bot.send_message(message2.chat.id,
                          "Вы не ввели PIN-код от предыдущего контрольного пункта. Ввод данного PIN-кода недопустим.")
-        return 'stop cycle'
+        return 0
 
-def Point_check(message2, i):
+def Point_check(message_pin_codes, i):
     mycursor = mydb.cursor(buffered=True)
-    sql = f'Select Point_{pin_codes.index(i) + 1} from race_db.competitors where race_db.competitors.name = "{message2.from_user.username}"'
+    sql = f'Select Point_{pin_codes.index(i) + 1} from race_db.competitors where race_db.competitors.name = "{message_pin_codes.from_user.username}"'
     mycursor.execute(sql)
     mydb.commit()
-    None_check = mycursor.fetchall()[0][0]
+    None_check = mycursor.fetchall()
     return None_check
 
 def Point_update(message2, i):
@@ -80,3 +79,12 @@ def registration_admin(registration_admin, password):
 
     mydb.commit()
     mycursor.close()
+
+def admin_check(start_message):
+    mycursor = mydb.cursor(buffered=True)
+    sql = f'Select Telegram_Name from race_db.admin where race_db.admin.Telegram_Name = "{start_message.from_user.username}"'
+    mycursor.execute(sql)
+    mydb.commit()
+    None_check = mycursor.fetchall()
+    mycursor.close()
+    return None_check
