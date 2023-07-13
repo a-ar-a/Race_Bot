@@ -2,6 +2,7 @@ import DB_Requests
 import Admin_Console
 from telebot import *
 import mysql.connector
+import Buttons
 
 
 mydb = mysql.connector.connect(
@@ -49,7 +50,6 @@ def codes(message_pin_codes):
     markup = types.InlineKeyboardMarkup()
 
     text = str(message_pin_codes.text).strip('/')
-    print(text)
 
     if text not in pin_codes:
         bot.send_message(message_pin_codes.chat.id, f"Введён неверный PIN-код")
@@ -57,7 +57,6 @@ def codes(message_pin_codes):
     for i in pin_codes:
         if i == text:
             if pin_codes.index(i) > 0:
-                print(pin_codes.index(i))
                 pin_check = DB_Requests.PIN_check(message_pin_codes, i)
 
                 if pin_check == 0:
@@ -95,13 +94,18 @@ def admin(message0):
 
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_messages(callback):
+    buttons_callback = {'became_admin': admin_script,
+                        'Password_right': Buttons.Password_right,
+                        'Type_again': admin_script,
+                        'Stop_registration': Buttons.Stop_registration
+                        }
+    button = buttons_callback[callback.data]
     if callback.data == 'became_admin':
         count_admin_check = DB_Requests.admin_id_call()
         print(count_admin_check)
         name_admin_check = DB_Requests.admin_check(callback)
         if name_admin_check == [] and count_admin_check < 4:
-            admin_script(callback)
-
+                button(callback)
         if count_admin_check >= 4:
             bot.send_message(callback.from_user.id,
                              "Достигнуто максимальное количество администраторов.")
@@ -109,31 +113,15 @@ def callback_messages(callback):
         if name_admin_check != []:
             bot.send_message(callback.from_user.id,
             'Вы уже являетесь администратором.')
-
-
-    if callback.data == 'Password_right':
-        registration_admin = []
-        registration_admin.append(callback.from_user.username)
-        password = []
-        password.append(Admin_Console.prepassword)
-
-        DB_Requests.registration_admin(registration_admin[0], password[0])
-        bot.send_message(callback.from_user.id,
-                         'Регистрация выполнена успешно!')
-
-    if callback.data == 'Type_again':
-        admin_script(callback)
-
-    if callback.data == 'Stop_registration':
-        bot.send_message(callback.from_user.id,
-                         'Регистрация отменена')
-
-
+    else:
+        button(callback)
 
 def admin_script(admin_message):
-  sent = bot.send_message(admin_message.from_user.id, "Твой аккаунт телеграмм будет зарегистрирован.\n"
+    sent = bot.send_message(admin_message.from_user.id, "Твой аккаунт телеграмм будет зарегистрирован.\n"
                                                       "Для завершения регистрации придумай пароль.")
-  bot.register_next_step_handler(sent, Admin_Console.create_password)
+    bot.register_next_step_handler(sent, Admin_Console.create_password)
+    Buttons.quick_delete_message(admin_message.message.chat.id, admin_message.message.message_id-1)
+    Buttons.quick_delete_message(admin_message.message.chat.id, admin_message.message.message_id)
 
 
 temp = str()
@@ -147,7 +135,6 @@ def message(incoming_messages):
 
     temp = text
     adress = incoming_messages
-    print(text)
     bot.send_message(incoming_messages.chat.id,
                      'Принято')
     return text
