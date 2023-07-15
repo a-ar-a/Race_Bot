@@ -34,7 +34,7 @@ def password_reply(message):
 def Stop_registration(callback):
     bot.send_message(callback.from_user.id,
                      'Регистрация отменена')
-    long_delete_message(callback.message.chat.id, callback.message.message_id)
+    quick_delete_message(callback.message.chat.id, callback.message.message_id)
     long_delete_message(callback.message.chat.id, callback.message.message_id+1)
 
 
@@ -50,9 +50,6 @@ def Password_right(callback):
                      'Регистрация выполнена успешно!')
     quick_delete_message(callback.message.chat.id, callback.message.id)
     long_delete_message(callback.message.chat.id, callback.message.id + 1)
-
-def Type_again(callback):
-    Admin_Console.create_password(callback)
 
 def long_delete_message(chat_id, message_id):
     time.sleep(5)
