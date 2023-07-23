@@ -116,11 +116,16 @@ def callback_messages(callback):
     else:
         button(callback)
 
+
+
+
 def admin_script(admin_message):
     Buttons.quick_delete_message(admin_message.message.chat.id, admin_message.message.message_id)
+
     sent = bot.send_message(admin_message.from_user.id, "Твой аккаунт телеграмм будет зарегистрирован.\n"
                                                       "Для завершения регистрации придумай пароль.")
     bot.register_next_step_handler(sent, Admin_Console.create_password)
+
     Buttons.quick_delete_message(admin_message.message.chat.id, admin_message.message.message_id-1)
     Buttons.quick_delete_message(admin_message.message.chat.id, admin_message.message.message_id)
 
@@ -143,13 +148,6 @@ def message(incoming_messages):
 def review(incoming_messages):
     message_to_save = incoming_messages
     return message_to_save
-
-# def print_temp():
-#     global temp
-#     global adress
-
-    #print(temp)
-    #print(adress)
 
 
 

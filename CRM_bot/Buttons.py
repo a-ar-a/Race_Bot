@@ -4,7 +4,7 @@ import mysql.connector
 import Admin_Console
 import DB_Requests
 import time
-import pprint
+
 
 
 
@@ -42,8 +42,8 @@ def Password_right(callback):
     print(callback)
     registration_admin = []
     registration_admin.append(callback.from_user.username)
-    password = []
-    password.append(Admin_Console.prepassword)
+    password = [Admin_Console.user_dict[callback.from_user.id].password]
+    #password.append(Admin_Console.prepassword[callback.from_user.username])
 
     DB_Requests.registration_admin(registration_admin[0], password[0])
     bot.send_message(callback.from_user.id,
